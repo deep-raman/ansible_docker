@@ -1,9 +1,28 @@
 ---
 
+- import_tasks: set_facts.yml
+  tags:
+    - deploy
+    - remove_volume
+
 - import_tasks: setup.yml
+  tags:
+    - deploy
 
 - import_tasks: create_containers.yml
+  tags:
+    - deploy
 
 - import_tasks: redis_cluster.yml
-
+  when: set_cluster
+  tags:
+    - deploy
+    - cluster
+  
 - import_tasks: remove_containers.yml
+  tags:
+    - remove
+
+- import_tasks: remove_volumes.yml
+  tags:
+    - remove_volume

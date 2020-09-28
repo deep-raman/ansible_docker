@@ -4,20 +4,18 @@
   shell: "docker inspect --format '{''{ .NetworkSettings.IPAddress }''}' {{ container_name }}{{ item }}"
   with_sequence: count="{{ redis_instances }}"
   register: output
-  
+    
 - set_fact:
     containers_ip: []
 
 - set_fact:
     containers_ip: "{{ containers_ip + item.stdout_lines }}"
   with_items: "{{ output.results }}"
-  tags: get_ips
   no_log: true
-  
+
 - set_fact:
-    my_joined_list: "{{ containers_ip | join(':{{ redis_port }} ') }}"
+    my_joined_list: "{{ containers_ip | join(':6379 ') }}"
  
 - name: Create cluster
-  shell: "echo \"yes\" | docker exec redis1 redis-cli --cluster create {{ my_joined_list }}:{{ redis_port }} --cluster-replicas 1 --cluster-yes"
+  shell: "docker exec redis1 redis-cli --cluster create {{ my_joined_list }}:{{ redis_port }} --cluster-replicas 1 --cluster-yes"
   run_once: true
-

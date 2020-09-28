@@ -1,0 +1,9 @@
+---
+
+- name: remove container
+  docker_container:
+    name: "{{ container_name}}{{ item }}"
+    image: "{{ redis_image }}"
+    state: absent
+  with_sequence: count="{{ redis_instances }}"
+ 

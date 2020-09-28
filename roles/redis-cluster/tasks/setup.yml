@@ -1,19 +1,5 @@
 ---
 
-- set_fact:
-    docker_vol_path: []
-    docker_vol_path_full: []
-
-- set_fact:
-    docker_vol_path: "{{ docker_vol_path }} + [ 'redis_data{{ item }}' ]"
-  with_sequence: count="{{ redis_instances }}"
-  no_log: true
-
-- set_fact:
-    docker_vol_path_full: "{{ docker_vol_path_full }} + [ '{{ item }}' ]"
-  with_sequence: count="{{ redis_instances }}" format={{ docker_volume_default_path }}/redis_data%01x  # this works
-  no_log: true
-
 - name: Create redis data volumes
   file:
     path: "{{ item }}"
