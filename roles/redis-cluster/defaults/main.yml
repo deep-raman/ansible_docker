@@ -1,5 +1,12 @@
 redis_instances: 6
-docker_volume_path: /docker/volumes
+redis_port: 6379
+redis_image: redis
+container_name: redis
+redis_network: redis_network
 docker_volume_default_path: /var/lib/docker/volumes
-# redis_data_volumes: "redis_data{{ item }}"
-#  with_sequence: count="{{ redis_instances }}"
+cluster_config: |
+  "{{ redis_port }}"
+  cluster-enabled yes
+  cluster-config-file nodes.conf
+  cluster-node-timeout 5000
+  appendonly yes
