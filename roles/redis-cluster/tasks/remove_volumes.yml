@@ -1,0 +1,8 @@
+--- 
+
+- name: remove volumes
+  docker_volume:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ docker_vol_path }}"
