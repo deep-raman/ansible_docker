@@ -1,0 +1,28 @@
+---
+
+- name: Create docker volumes
+  docker_volume:
+    name: "{{ item }}"
+  with_items:
+    - "{{ docker_vol_path }}"
+
+- name: Create a network
+  docker_network:
+    name: "{{ redis_network }}"
+
+- name: Create a redis container
+  docker_container:
+    name: "{{ container_name}}{{ item }}"
+    image: "{{ redis_image }}"
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes
+    state: started
+    restart_policy: always
+    exposed_ports: "{{ redis_port }}"
+    published_ports:
+      - "{{ redis_port }}{{ item }}:{{ redis_port }}"
+    volumes:
+      - "{{ docker_volume_default_path }}/redis_data{{ item }}:/data"
+      - "{{ docker_volume_default_path }}/redis_data{{ item }}/redis.conf:/usr/local/etc/redis/redis.conf"
+    networks: 
+      - name: "{{ redis_network }}"
+  with_sequence: count="{{ redis_instances }}"
