@@ -1,0 +1,5 @@
+redis_instances: 6
+docker_volume_path: /docker/volumes
+docker_volume_default_path: /var/lib/docker/volumes
+# redis_data_volumes: "redis_data{{ item }}"
+#  with_sequence: count="{{ redis_instances }}"
