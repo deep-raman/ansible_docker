@@ -1,0 +1,31 @@
+---
+
+- name: Create docker volumes
+  docker_volume:
+    name: rabbitmq_data
+  #with_items:
+  #  - "{{ docker_vol_path }}"
+
+- name: Create a network
+  docker_network:
+    name: "{{ network }}"
+
+- name: Create a rabbitmq container
+  docker_container:
+    name: "{{ container_name}}{{ item }}"
+    hostname: "{{ container_name}}{{ item }}"
+    image: "{{ rabbitmq_image }}"
+    state: started
+    restart_policy: always
+    exposed_ports: "{{ rabbitmq_port }}"
+    published_ports:
+      - "{{ rabbitmq_port }}{{ item }}:{{ rabbitmq_port }}"
+    volumes:
+      - "{{ docker_volume_default_path }}/rabbitmq_data{{ item }}:/var/lib/rabbitmq"
+    networks: 
+      - name: "{{ network }}"
+  with_sequence: count="{{ rabbitmq_instances }}"
+  environment:
+   - RABBITMQ_ERLANG_COOKIE="{{ rabbitmq_cookie }}"
+   - RABBITMQ_DEFAULT_USER="{{ rabbitmq_user }}"
+   - RABBITMQ_DEFAULT_PASS="{{ rabbitmq_password }}"

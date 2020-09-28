@@ -1,0 +1,10 @@
+rabbitmq_instances: 3
+rabbitmq_image: rabbitmq:3.8.9-management
+container_name: rabbitmq
+network: rabbitmq_network
+rabbitmq_port: 15672
+rabbitmq_cookie: rabitmq_cluster_cookie
+rabbitmq_user: batraman
+rabbitmq_password: Passw0rd
+docker_volume_default_path: /var/lib/docker/volumes
+
