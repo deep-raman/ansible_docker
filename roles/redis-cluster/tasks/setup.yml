@@ -1,0 +1,44 @@
+---
+
+- set_fact:
+    docker_vol_path: []
+    docker_vol_path_full: []
+
+- set_fact:
+    docker_vol_path: "{{ docker_vol_path }} + [ 'redis_data{{ item }}' ]"
+  with_sequence: count="{{ redis_instances }}"
+  no_log: true
+
+- set_fact:
+    docker_vol_path_full: "{{ docker_vol_path_full }} + [ '{{ item }}' ]"
+  with_sequence: count="{{ redis_instances }}" format={{ docker_volume_default_path }}/redis_data%01x  # this works
+  no_log: true
+
+- name: Create redis data volumes
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ docker_vol_path_full }}"
+  become: yes 
+
+- name: Create redis config files
+  file:
+    path: "{{ item }}/redis.conf"
+    state: touch
+  delegate_to: 127.0.0.1
+  become: yes
+  with_items:
+    - "{{ docker_vol_path_full }}"
+
+- name: Personalize redis configuration
+  blockinfile:
+    dest: "{{ item }}/redis.conf"
+    state: present
+    backup: yes
+    block: |
+      {{ cluster_config }}
+  delegate_to: 127.0.0.1
+  become: yes
+  with_items:
+    - "{{ docker_vol_path_full }}"
