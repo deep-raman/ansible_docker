@@ -1,3 +1,20 @@
 ---
 
 - import_tasks: rabbitmq_container.yml
+  tags:
+    - deploy
+
+- import_tasks: create_cluster.yml
+  tags:
+    - deploy
+    - cluster
+
+- import_tasks: remove_container.yml
+  tags:
+    - remove_container
+    - remove_all
+
+- import_tasks: remove_volume.yml
+  tags:
+    - remove_volume
+    - remove_all
