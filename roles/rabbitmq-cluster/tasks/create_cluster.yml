@@ -1,0 +1,23 @@
+---
+- name: Check cluster requirements
+  debug:
+    msg: "Cluster setup requires 2 or more containers. Please set the variable rabbitmq_instances accordingly."
+  failed_when: "rabbitmq_instances | int == 1"
+  #when: rabbitmq_instances == 1
+  
+- name: Sleep for 30 seconds
+  wait_for:
+    timeout: 30
+  delegate_to: localhost
+
+- name: Stop rabbitmq
+  shell: "docker exec {{ container_name}}{{ item }} bash -c 'rabbitmqctl stop_app'"
+  with_sequence: start=2 end="{{ rabbitmq_instances }}"
+
+- name: Create cluster
+  shell: "docker exec {{ container_name}}{{ item }} bash -c 'rabbitmqctl join_cluster rabbit@rabbitmq1'"
+  with_sequence: start=2 end="{{ rabbitmq_instances }}"
+  
+- name: Start rabbitmq
+  shell: "docker exec {{ container_name}}{{ item }} bash -c 'rabbitmqctl start_app'"
+  with_sequence: start=2 end="{{ rabbitmq_instances }}"
