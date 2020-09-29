@@ -1,0 +1,7 @@
+---
+
+- name: remove volumes
+  docker_volume:
+    name: rabbitmq_data{{ item }}
+    state: absent
+  with_sequence: count="{{ rabbitmq_instances }}"
