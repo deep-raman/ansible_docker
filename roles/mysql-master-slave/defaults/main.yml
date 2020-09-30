@@ -1,2 +1,14 @@
 ---
 
+mysql_image: bitnami/mysql:latest
+master_name: mysql-master
+slave_instances: 1
+slave_name: mysql-slave
+network_name: mysql_network
+replication_user: replica
+replication_pass: replica
+mysql_user: batraman
+mysql_pass: Passw0rd
+mysql_db: docker
+mysql_root_pass: R00Tpass
+mysql_master_host: "{{ master_name }}"
