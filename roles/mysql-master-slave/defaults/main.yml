@@ -10,5 +10,5 @@ replication_pass: replica
 mysql_user: batraman
 mysql_pass: Passw0rd
 mysql_db: docker
-mysql_root_pass: R00Tpass
+mysql_root_pass: rootpass
 mysql_master_host: "{{ master_name }}"
