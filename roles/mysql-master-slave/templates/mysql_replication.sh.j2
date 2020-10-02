@@ -1,0 +1,12 @@
+#!/bin/bash
+
+priv_stmt='GRANT REPLICATION SLAVE ON *.* TO "{{ replication_user }}"@"%" IDENTIFIED BY "{{ replication_pass }}"; FLUSH PRIVILEGES;'
+docker exec  {{ master_name }} sh -c "export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root -e '$priv_stmt'"
+
+start_slave_stmt="CHANGE MASTER TO MASTER_HOST='{{ master_ip }}',MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='{{ replication_pass }}',MASTER_LOG_FILE='{{ master_binlog }}',MASTER_LOG_POS={{ master_logpos }}; START SLAVE;"
+start_slave_cmd='export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root -e "'
+start_slave_cmd+="$start_slave_stmt"
+start_slave_cmd+='"'
+docker exec mysql-slave1 sh -c "$start_slave_cmd"
+
+docker exec {{ master_name }} sh -c "export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root {{ mysql_db }} -e 'create table master_slave(code int); insert into docker.master_slave values (100), (200)'"
