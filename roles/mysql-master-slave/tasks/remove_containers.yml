@@ -1,0 +1,14 @@
+---
+
+- name: remove master container
+  docker_container:
+    name: "{{ master_name}}"
+    image: "{{ mysql_image }}"
+    state: absent
+
+- name: remove slave container
+  docker_container:
+    name: "{{ slave_name}}{{ item }}"
+    image: "{{ mysql_image }}"
+    state: absent
+  with_sequence: count="{{ slave_instances }}" 
