@@ -3,34 +3,47 @@
 - name: Create mysql network
   docker_network:
     name: "{{ network_name }}"
-    
+
+- name: Create master data directory 
+  file:
+    path: "{{ docker_volume_default_path }}/{{ item }}"
+    state: directory
+  with_items:
+    - mysql_master_data
+    - mysql_slave_data
+  become: yes
+
 - name: Create mysql master config file
   file:
-    path: /docker/mysql_conf/master.cnf
+    path: "{{ docker_volume_default_path }}/mysql_master_data/master.cnf"
     state: touch
+  become: yes
 
 - name: Create mysql slave config file
   file:
-    path: "/docker/mysql_conf/slave{{ item }}.cnf"
+    path: "{{ docker_volume_default_path }}/mysql_slave_data/slave{{ item }}.cnf"
     state: touch
   with_sequence: count="{{ slave_instances }}"
+  become: yes
 
 - name: Personalize master configuration
   blockinfile:
-    dest: /docker/mysql_conf/master.cnf
+    dest: "{{ docker_volume_default_path }}/mysql_master_data/master.cnf"
     state: present
     backup: yes
     block: |
       {{ master_config }}
+  become: yes
 
 - name: Personalize slave configuration
   blockinfile:
-    dest: "/docker/mysql_conf/slave{{ item }}.cnf"
+    dest: "{{ docker_volume_default_path }}/mysql_slave_data/slave{{ item }}.cnf"
     state: present
     backup: yes
     block: |
       {{ slave_config }} 
-  with_sequence: count="{{ slave_instances }}"  
+  with_sequence: count="{{ slave_instances }}"
+  become: yes
   
 - name: Create mysql master container
   docker_container:
@@ -42,8 +55,8 @@
     published_ports:
       - "{{ mysql_port }}:{{ mysql_port }}"
     volumes:
-      - /docker/mysql_master_data:/var/lib/mysql
-      - /docker/mysql_conf/master.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - "{{ docker_volume_default_path }}/mysql_master_data:/var/lib/mysql"
+      - "{{ docker_volume_default_path }}/mysql_master_data/master.cnf:/etc/mysql/conf.d/mysql.conf.cnf"
     networks: 
       - name: "{{ network_name }}"
     env: MYSQL_ROOT_PASSWORD={{ mysql_root_pass }},
@@ -62,8 +75,8 @@
     published_ports:
       - "3307:{{ mysql_port }}"
     volumes:
-      - "/docker/mysql_slave_data{{ item }}:/var/lib/mysql"
-      - "/docker/mysql_conf/slave{{ item }}.cnf:/etc/mysql/conf.d/mysql.conf.cnf"
+      - "{{ docker_volume_default_path }}/mysql_slave_data:/var/lib/mysql"
+      - "{{ docker_volume_default_path }}/mysql_slave_data/slave{{ item }}.cnf:/etc/mysql/conf.d/mysql.conf.cnf"
     networks: 
       - name: "{{ network_name }}"
     env: MYSQL_REPLICATION_USER={{ replication_user }},
