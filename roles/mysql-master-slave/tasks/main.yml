@@ -12,5 +12,4 @@
 - import_tasks: remove_containers.yml
   tags:
     - remove_containers
-    - remove_all
 
