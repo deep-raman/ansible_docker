@@ -24,25 +24,25 @@ Tags
 
 - redis-cluster
 	
-	  ** deploy **: tag to deploy redis containers, network, volumes and configure the cluster configuration
-	  **cluster**: only set up the cluster config, containers must exist
-	  **remove_container**: removes the containers
-	  **remove_volume**: remove the persisted volumes
-	  **remove_all**: removes everything, containers and volumes
+	  - deploy : tag to deploy redis containers, network, volumes and configure the cluster configuration
+	  - cluster: only set up the cluster config, containers must exist
+	  - remove_container : removes the containers
+	  - remove_volume: remove the persisted volumes
+	  - remove_all: removes everything, containers and volumes
 	
 - rabbitmq-cluster
 
-	  **deploy**: creates all the setup containers creation, network, cluster config
-	  **cluster**: only set up the cluster config, containers must exist
-	  **remove_container**: removes the containers
-	  **remove_volume**: remove the persisted volumes
-	  **remove_all**: removes everything, containers and volumes
+	  - deploy : creates all the setup containers creation, network, cluster config
+	  - cluster : only set up the cluster config, containers must exist
+	  - remove_container: removes the containers
+	  - remove_volume: remove the persisted volumes
+	  - remove_all: removes everything, containers and volumes
 
 - mysql-master-slave
 	
-	  **deploy**: creates the mysql master slave setup
-	  **replication**: configures only master slave replication between containers, containers must exist
-	  **remove_container**: removes the containers
+	  - deploy: creates the mysql master slave setup
+	  - replication: configures only master slave replication between containers, containers must exist
+	  - remove_container: removes the containers
 
 
 Examples 
