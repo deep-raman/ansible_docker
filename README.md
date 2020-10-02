@@ -7,16 +7,16 @@ The roles in this repo creates the redis-cluster, rabbitmq-cluster and mysql-mas
 Playbooks
 ---------
 
-- redis_cluser.yaml : installs the redis cluster on docker containers
+- **redis_cluser.yaml** : installs the redis cluster on docker containers
 
-- rabbitmq_cluster.yaml: installs the rabbitmq cluster
+- **rabbitmq_cluster.yaml** : installs the rabbitmq cluster
 
-- mysql_master_slave.yaml: installs the mysql master-slave replication containers
+- **mysql_master_slave.yaml**: installs the mysql master-slave replication containers
 
 Variables
 ---------
 
-To check the default varibles and customize them check the defaults/main.yml in each role.
+To check the default varibles and customize them check the **defaults/main.yml** in each role.
 
 
 Tags
@@ -24,25 +24,25 @@ Tags
 
 - redis-cluster
 	
-	  deploy: tag to deploy redis containers, network, volumes and configure the cluster configuration
-	  cluster: only set up the cluster config, containers must exist
-	  remove_container: removes the containers
-	  remove_volume: remove the persisted volumes
-	  remove_all: removes everything, containers and volumes
+	  **deploy**: tag to deploy redis containers, network, volumes and configure the cluster configuration
+	  **cluster**: only set up the cluster config, containers must exist
+	  **remove_container**: removes the containers
+	  **remove_volume**: remove the persisted volumes
+	  **remove_all**: removes everything, containers and volumes
 	
 - rabbitmq-cluster
 
-	  deploy: creates all the setup containers creation, network, cluster config
-	  cluster: only set up the cluster config, containers must exist
-	  remove_container: removes the containers
-	  remove_volume: remove the persisted volumes
-	  remove_all: removes everything, containers and volumes
+	  **deploy**: creates all the setup containers creation, network, cluster config
+	  **cluster**: only set up the cluster config, containers must exist
+	  **remove_container**: removes the containers
+	  **remove_volume**: remove the persisted volumes
+	  **remove_all**: removes everything, containers and volumes
 
 - mysql-master-slave
 	
-	  deploy: creates the mysql master slave setup
-	  replication: configures only master slave replication between containers, containers must exist
-	  remove_container: removes the containers
+	  **deploy**: creates the mysql master slave setup
+	  **replication**: configures only master slave replication between containers, containers must exist
+	  **remove_container**: removes the containers
 
 
 Examples 
@@ -50,7 +50,7 @@ Examples
 
 For the direct one line command installation on localhost use :
 
-- redis-cluster
+- **redis-cluster**
 	
 	To install redis cluster :
 	
@@ -69,7 +69,7 @@ For the direct one line command installation on localhost use :
 		ansible-playbook --connection=local --inventory 127.0.0.1, redis_cluser.yaml --tags cluster
 
 	
-- rabbitmq-cluster
+- **rabbitmq-cluster**
 
 	To install rabbitmq cluster :
 	
@@ -92,7 +92,7 @@ For the direct one line command installation on localhost use :
 		ansible-playbook --connection=local --inventory 127.0.0.1, rabbitmq_cluster.yaml --tags remove_all
 		
 
-- mysql-master-slave
+- **mysql-master-slave**
 
 	To create mysql master slave replcation containers:
 	
