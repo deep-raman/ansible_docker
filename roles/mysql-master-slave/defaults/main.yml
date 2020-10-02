@@ -12,6 +12,14 @@ mysql_user: "batraman"
 mysql_pass: "password"
 mysql_db: "docker"
 mysql_root_pass: "rootpass"
+slave_name: mysql-slave
+network_name: mysql_network
+replication_user: replica
+replication_pass: replica
+mysql_user: batraman
+mysql_pass: password
+mysql_db: docker
+mysql_root_pass: rootpass
 mysql_master_host: "{{ master_name }}"
 docker_volume_default_path: /var/lib/docker/volumes
 master_config: |
