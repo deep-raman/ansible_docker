@@ -1,0 +1,85 @@
+---
+- name: Sleep for 30 seconds
+  wait_for:
+    timeout: 30
+  delegate_to: localhost
+
+- name: Get master node ip
+  shell: "docker network inspect {{ network_name }} | jq -r '.[].Containers[].IPv4Address' | cut -d\"/\" -f1 | sort | head -n 1"
+  register: ip
+
+- set_fact:
+    master_ip: "{{ ip.stdout }}"
+    
+- debug: var=master_ip
+
+- name: Get slave node ip
+  shell: "docker network inspect {{ network_name }} | jq -r '.[].Containers[].IPv4Address' | cut -d\"/\" -f1 | sort | sed '1d'"
+  register: ip
+
+- set_fact:
+    slave_ip: "{{ ip.stdout }}"
+    
+- debug: var=slave_ip
+
+- name: Grant replication to replica user
+  mysql_user:
+    name: "{{ replication_user }}"
+    password: "{{ replication_pass }}"
+    priv: "*.*:REPLICATION CLIENT"
+    host: "%"
+    state: present
+    login_host: "{{ master_ip }}"
+    login_user: "root"
+    login_password: "{{ mysql_root_pass }}"
+    
+- name: Get mysql master binlog
+  shell: "docker exec {{ master_name }} sh -c 'export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root --batch -N -e \"SHOW MASTER STATUS\"' | awk '{print $1 }'"
+  register: output
+
+- set_fact: 
+    master_binlog: "{{ output.stdout }}"
+
+- debug: var=master_binlog
+
+- name: Get mysql master log position
+  shell: "docker exec {{ master_name }} sh -c 'export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root --batch -N -e \"SHOW MASTER STATUS\"' | awk '{print $2 }'"
+  register: output
+
+- set_fact: 
+    master_logpos: "{{ output.stdout }}"
+
+- debug: var=master_logpos
+
+#- name: Set slave for replication
+  #mysql_replication:
+    #login_host: "{{ slave_ip }}"
+    #login_port: 3307
+    #login_user: root
+    #login_password: "{{ mysql_root_pass }}"
+    #mode: changemaster
+    #master_host: "{{ master_ip }}"
+    #master_user: "{{ replication_user }}"
+    #master_password: "{{ replication_pass }}"
+    #master_log_file: "{{ master_binlog }}"
+    #master_log_pos: "{{ master_logpos }}"
+    
+#- set_fact:
+#    slave_stmt: "'export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root -e \"CHANGE MASTER TO MASTER_HOST='{{ master_ip }}',MASTER_USER='{{ replication_user }}', MASTER_PASSWORD='{{ replication_pass }}',MASTER_LOG_FILE='{{ master_binlog }}',MASTER_LOG_POS={{ master_logpos }}\"'"
+
+- name: Set slave for replication
+  shell: "docker exec {{ slave_name }}{{ item }} sh -c \"export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root -e \"CHANGE MASTER TO MASTER_HOST='{{ master_ip }}',MASTER_USER='{{ replication_user }}', MASTER_PASSWORD='{{ replication_pass }}',MASTER_LOG_FILE='{{ master_binlog }}',MASTER_LOG_POS={{ master_logpos }}; START SLAVE;\"\""
+  with_sequence: count="{{ slave_instances }}"
+  ignore_errors: yes
+
+- name: Create table on master
+  shell: "docker exec {{ master_name }} sh -c \"export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root {{ mysql_db }} -e 'create table master_slave(code int); insert into docker.master_slave values (100), (200)';\""
+
+- name: Check slave status
+  shell: "docker exec {{ slave_name }}{{ item }} sh -c \"export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root {{ mysql_db }} --batch -N -e 'select * from master_slave'\""
+  register: query_result
+  with_sequence: count="{{ slave_instances }}"
+
+- debug:
+    msg: "Replication is working fine."
+  when: query_result.stdout is search("100")
