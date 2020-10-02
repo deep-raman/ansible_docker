@@ -1,14 +1,33 @@
 ---
 
-mysql_image: bitnami/mysql:latest
-master_name: mysql-master
+mysql_image: "mysql:5.7"
+master_name: "mysql-master"
 slave_instances: 1
-slave_name: mysql-slave
-network_name: mysql_network
-replication_user: replica
-replication_pass: replica
-mysql_user: batraman
-mysql_pass: Passw0rd
-mysql_db: docker
-mysql_root_pass: R00Tpass
+slave_name: "mysql-slave"
+network_name: "mysql_network"
+replication_user: "replica"
+replication_pass: "replica"
+mysql_port: 3306
+mysql_user: "batraman"
+mysql_pass: "password"
+mysql_db: "docker"
+mysql_root_pass: "rootpass"
 mysql_master_host: "{{ master_name }}"
+docker_volume_default_path: /var/lib/docker/volumes
+master_config: |
+  [mysqld]
+  skip-host-cache
+  skip-name-resolve
+  server-id = 1
+  log_bin = /var/log/mysql/mysql-bin.log
+  binlog_format = ROW
+  binlog_do_db = {{ mysql_db }}
+
+slave_config: |
+  [mysqld]
+  skip-host-cache
+  skip-name-resolve
+  server-id = 2
+  relay-log = /var/log/mysql/mysql-relay-bin.log
+  log_bin = /var/log/mysql/mysql-bin.log
+  binlog_do_db = {{ mysql_db }}

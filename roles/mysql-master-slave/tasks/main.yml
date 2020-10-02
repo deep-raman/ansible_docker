@@ -1,3 +1,9 @@
 ---
 
+- import_tasks: mysql_containers.yml
+  tags:
+    - deploy
 
+- import_tasks: configure_master_slave.yml
+  tags:
+    - replication
