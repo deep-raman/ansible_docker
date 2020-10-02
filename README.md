@@ -112,7 +112,12 @@ Requirements
 
 	- ansible 2.7.7
 	- docker 19.03.9
-	- python-docker
+
+Following additional packages must be installed on the host running docker :
+
+	- python-dockerpty or python-docker-py (depending on the linux release)
+	- PyMySQL (Python 2.7 and Python 3.X) or MySQL-python (Python 2.X)
+	- jq
 
 
 Author Information
