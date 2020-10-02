@@ -13,22 +13,27 @@
     - mysql_slave_data
   become: yes
 
+- name: Create conf directory 
+  file:
+    path: "{{ docker_volume_default_path }}/mysql_conf"
+    state: directory
+
 - name: Create mysql master config file
   file:
-    path: "{{ docker_volume_default_path }}/mysql_master_data/master.cnf"
+    path: "{{ docker_volume_default_path }}/mysql_conf/master.cnf"
     state: touch
   become: yes
 
 - name: Create mysql slave config file
   file:
-    path: "{{ docker_volume_default_path }}/mysql_slave_data/slave{{ item }}.cnf"
+    path: "{{ docker_volume_default_path }}/mysql_conf/slave{{ item }}.cnf"
     state: touch
   with_sequence: count="{{ slave_instances }}"
   become: yes
 
 - name: Personalize master configuration
   blockinfile:
-    dest: "{{ docker_volume_default_path }}/mysql_master_data/master.cnf"
+    dest: "{{ docker_volume_default_path }}/mysql_conf/master.cnf"
     state: present
     backup: yes
     block: |
@@ -37,7 +42,7 @@
 
 - name: Personalize slave configuration
   blockinfile:
-    dest: "{{ docker_volume_default_path }}/mysql_slave_data/slave{{ item }}.cnf"
+    dest: "{{ docker_volume_default_path }}/mysql_conf/slave{{ item }}.cnf"
     state: present
     backup: yes
     block: |
@@ -56,7 +61,7 @@
       - "{{ mysql_port }}:{{ mysql_port }}"
     volumes:
       - "{{ docker_volume_default_path }}/mysql_master_data:/var/lib/mysql"
-      - "{{ docker_volume_default_path }}/mysql_master_data/master.cnf:/etc/mysql/conf.d/mysql.conf.cnf"
+      - "{{ docker_volume_default_path }}/mysql_conf/master.cnf:/etc/mysql/conf.d/mysql.conf.cnf"
     networks: 
       - name: "{{ network_name }}"
     env: MYSQL_ROOT_PASSWORD={{ mysql_root_pass }},
@@ -76,7 +81,7 @@
       - "3307:{{ mysql_port }}"
     volumes:
       - "{{ docker_volume_default_path }}/mysql_slave_data:/var/lib/mysql"
-      - "{{ docker_volume_default_path }}/mysql_slave_data/slave{{ item }}.cnf:/etc/mysql/conf.d/mysql.conf.cnf"
+      - "{{ docker_volume_default_path }}/mysql_conf/slave{{ item }}.cnf:/etc/mysql/conf.d/mysql.conf.cnf"
     networks: 
       - name: "{{ network_name }}"
     env: MYSQL_REPLICATION_USER={{ replication_user }},
