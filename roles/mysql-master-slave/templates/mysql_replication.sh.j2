@@ -9,4 +9,4 @@ start_slave_cmd+="$start_slave_stmt"
 start_slave_cmd+='"'
 docker exec mysql-slave1 sh -c "$start_slave_cmd"
 
-docker exec {{ master_name }} sh -c "export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root {{ mysql_db }} -e 'create table master_slave(code int); insert into docker.master_slave values (100), (200)'"
+docker exec {{ master_name }} sh -c "export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root -e 'create table {{ mysql_db }}.master_slave(code int); insert into {{ mysql_db }}.master_slave values (100), (200)'"
