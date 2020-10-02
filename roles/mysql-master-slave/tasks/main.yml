@@ -6,4 +6,15 @@
 
 - import_tasks: configure_master_slave.yml
   tags:
+    - deploy
     - replication
+
+- import_tasks: remove_containers.yml
+  tags:
+    - remove_containers
+    - remove_all
+
+- import_tasks: remove_volumes.yml
+  tags:
+    - remove_volumes
+    - remove_all
