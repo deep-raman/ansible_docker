@@ -40,7 +40,7 @@
 - set_fact: 
     master_binlog: "{{ output.stdout }}"
 
-- debug: var=master_binlog
+#- debug: var=master_binlog
 
 - name: Get mysql master log position
   shell: "docker exec {{ master_name }} sh -c 'export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root --batch -N -e \"SHOW MASTER STATUS\"' | awk '{print $2 }'"
@@ -49,37 +49,24 @@
 - set_fact: 
     master_logpos: "{{ output.stdout }}"
 
-- debug: var=master_logpos
+#- debug: var=master_logpos
 
-#- name: Set slave for replication
-  #mysql_replication:
-    #login_host: "{{ slave_ip }}"
-    #login_port: 3307
-    #login_user: root
-    #login_password: "{{ mysql_root_pass }}"
-    #mode: changemaster
-    #master_host: "{{ master_ip }}"
-    #master_user: "{{ replication_user }}"
-    #master_password: "{{ replication_pass }}"
-    #master_log_file: "{{ master_binlog }}"
-    #master_log_pos: "{{ master_logpos }}"
-    
-#- set_fact:
-#    slave_stmt: "'export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root -e \"CHANGE MASTER TO MASTER_HOST='{{ master_ip }}',MASTER_USER='{{ replication_user }}', MASTER_PASSWORD='{{ replication_pass }}',MASTER_LOG_FILE='{{ master_binlog }}',MASTER_LOG_POS={{ master_logpos }}\"'"
+- name: Copy shell script
+  template:
+    src: mysql_replication.sh.j2
+    dest: /tmp/mysql_replication.sh
+    mode: 0755
 
-- name: Set slave for replication
-  shell: "docker exec {{ slave_name }}{{ item }} sh -c \"export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root -e \"CHANGE MASTER TO MASTER_HOST='{{ master_ip }}',MASTER_USER='{{ replication_user }}', MASTER_PASSWORD='{{ replication_pass }}',MASTER_LOG_FILE='{{ master_binlog }}',MASTER_LOG_POS={{ master_logpos }}; START SLAVE;\"\""
-  with_sequence: count="{{ slave_instances }}"
-  ignore_errors: yes
-
-- name: Create table on master
-  shell: "docker exec {{ master_name }} sh -c \"export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root {{ mysql_db }} -e 'create table master_slave(code int); insert into docker.master_slave values (100), (200)';\""
-
+- name: run shell script
+  shell: /tmp/mysql_replication.sh
+  
 - name: Check slave status
-  shell: "docker exec {{ slave_name }}{{ item }} sh -c \"export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root {{ mysql_db }} --batch -N -e 'select * from master_slave'\""
+  shell: "docker exec {{ slave_name }}{{ item }} sh -c \"export MYSQL_PWD={{ mysql_root_pass }}; mysql -u root --batch -N -e 'select * from docker.master_slave;show slave status'\""
   register: query_result
   with_sequence: count="{{ slave_instances }}"
+  tags: status
 
-- debug:
-    msg: "Replication is working fine."
-  when: query_result.stdout is search("100")
+- debug: var=query_result
+  tags: status
+
+  
