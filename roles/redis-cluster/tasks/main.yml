@@ -21,7 +21,7 @@
   
 - import_tasks: remove_containers.yml
   tags:
-    - remove
+    - remove_container
 
 - import_tasks: remove_volumes.yml
   tags:
