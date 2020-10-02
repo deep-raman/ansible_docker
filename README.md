@@ -24,7 +24,7 @@ Tags
 
 - redis-cluster
 	
-	  **deploy**: tag to deploy redis containers, network, volumes and configure the cluster configuration
+	  ** deploy **: tag to deploy redis containers, network, volumes and configure the cluster configuration
 	  **cluster**: only set up the cluster config, containers must exist
 	  **remove_container**: removes the containers
 	  **remove_volume**: remove the persisted volumes
