@@ -20,7 +20,7 @@
 - set_fact:
     slave_ip: "{{ ip.stdout }}"
     
-- debug: var=slave_ip
+#- debug: var=slave_ip
 
 - name: Grant replication to replica user
   mysql_user:
@@ -48,8 +48,6 @@
 
 - set_fact: 
     master_logpos: "{{ output.stdout }}"
-
-#- debug: var=master_logpos
 
 - name: Copy shell script
   template:
